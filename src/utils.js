@@ -19,9 +19,9 @@ const isImage = (filename) => {
     switch (ext.toLowerCase()) {
         case 'jpg':
         case 'jpeg':
-            // case 'gif':
-            // case 'bmp':
-            // case 'png':
+        case 'gif':
+        case 'bmp':
+        case 'png':
             //etc
             return true;
     }

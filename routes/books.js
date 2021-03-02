@@ -7,6 +7,7 @@ const { Images, validateImage } = require("../models/images");
 const express = require("express");
 const router = express.Router();
 const utils = require("../src/utils");
+const sharp = require("sharp");
 
 router.get("/", auth, async (req, res) => {
 
@@ -168,15 +169,29 @@ router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
 
 	const imagePath = '/public/images/';
 	const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/images/${fileName}`;
+	const filePath = global.appRoot + imagePath + fileName;
 	// console.log(imageUrl);
+	// console.log(filePath);
 
-	fileData.mv(global.appRoot + imagePath + fileName, function (err) {
-		if (err) {
-			return res.status(400).send(err);
-		} else {
-			console.log(`Image uploaded successfully to ${imageUrl}`);
-		}
-	});
+	// Resize the image
+	sharp(fileData.data)
+		.resize(512)
+		.toFormat("jpeg")
+		.toFile(filePath, (err, info) => {
+			if (err) {
+				return res.status(400).send(err);
+			} else {
+				console.log(`Image uploaded successfully to ${imageUrl}`);
+			}
+		});
+
+	// fileData.mv(global.appRoot + imagePath + fileName, function (err) {
+	// 	if (err) {
+	// 		return res.status(400).send(err);
+	// 	} else {
+	// 		console.log(`Image uploaded successfully to ${imageUrl}`);
+	// 	}
+	// });
 
 	const book = await Books.findById(req.params.id).select("-__v");
 	if (!book)
