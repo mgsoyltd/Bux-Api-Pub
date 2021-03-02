@@ -1,13 +1,15 @@
-const auth = require("../middleware/auth");
-const admin = require("../middleware/admin");
-const express = require("express"); const { Timestamp } = require("mongodb");
+const express = require("express");
 const router = express.Router();
 const fs = require('fs');
+
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const { validateKey } = require("../middleware/apikeys");
 const utils = require("../src/utils");
 
 const imageDir = global.appRoot + '/public/images/';
 
-router.get("/", auth, async (req, res) => {
+router.get("/", [validateKey, auth], async (req, res) => {
 
     const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/images/`;
 
@@ -28,7 +30,7 @@ router.get("/", auth, async (req, res) => {
     });
 });
 
-router.get("/:id", auth, async (req, res) => {
+router.get("/:id", [validateKey, auth], async (req, res) => {
 
     // Read the image using fs and send the image content back in the response
     fs.readFile(imageDir + req.params.id, function (err, content) {
@@ -48,7 +50,7 @@ router.get("/:id", auth, async (req, res) => {
 });
 
 // Delete an image
-router.delete("/:id", [auth, admin], async (req, res) => {
+router.delete("/:id", [validateKey, auth, admin], async (req, res) => {
     // Read the image using fs and delete it
     const file = imageDir + req.params.id;
     console.log("File to delete:", file);

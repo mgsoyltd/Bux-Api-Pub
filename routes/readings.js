@@ -1,12 +1,14 @@
-const auth = require("../middleware/auth");
-const admin = require("../middleware/admin");
-const _ = require("lodash");
-const { Readings, validate } = require("../models/readings");
 const express = require("express"); const { Timestamp } = require("mongodb");
 const router = express.Router();
-const validateObjectId = require("../middleware/validateObjectId");
+const _ = require("lodash");
 
-router.get("/", auth, async (req, res) => {
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const validateObjectId = require("../middleware/validateObjectId");
+const { validateKey } = require("../middleware/apikeys");
+const { Readings, validate } = require("../models/readings");
+
+router.get("/", [validateKey, auth], async (req, res) => {
 
 	// query: { '$expand': '*' }
 
@@ -66,7 +68,7 @@ router.get("/", auth, async (req, res) => {
 	}
 });
 
-router.post("/", auth, async (req, res) => {
+router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -92,7 +94,7 @@ router.post("/", auth, async (req, res) => {
 	}
 });
 
-router.get("/:id", [auth, validateObjectId], async (req, res) => {
+router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const readings = await Readings.findById(req.params.id).select("-__v");
 
 	if (!readings)
@@ -101,7 +103,7 @@ router.get("/:id", [auth, validateObjectId], async (req, res) => {
 	res.send(readings);
 });
 
-router.put("/:id", [auth, validateObjectId], async (req, res) => {
+router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -124,7 +126,7 @@ router.put("/:id", [auth, validateObjectId], async (req, res) => {
 	res.send(readings);
 });
 
-router.delete("/:id", [auth, validateObjectId, admin], async (req, res) => {
+router.delete("/:id", [validateKey, auth, validateObjectId, admin], async (req, res) => {
 	const readings = await Readings.findByIdAndRemove(req.params.id);
 
 	if (!readings)

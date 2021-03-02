@@ -3,7 +3,6 @@ const config = require("config");
 
 module.exports = function (req, res, next) {
 	if (!config.get("requiresAuth")) return next();
-	// console.log("<<<AUTH>>>", req.header("host"), req.header("x-api-key"), req.header("x-auth-token"));
 	const token = req.header("x-auth-token");
 	if (!token) return res.status(401).send("Access denied. No token provided.");
 

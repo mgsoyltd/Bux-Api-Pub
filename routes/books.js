@@ -1,15 +1,16 @@
-const validateObjectId = require("../middleware/validateObjectId");
-const auth = require("../middleware/auth");
-const admin = require("../middleware/admin");
 const _ = require("lodash");
-const { Books, validate } = require("../models/books");
-const { Images, validateImage } = require("../models/images");
 const express = require("express");
 const router = express.Router();
-const utils = require("../src/utils");
 const sharp = require("sharp");
 
-router.get("/", auth, async (req, res) => {
+const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const validateObjectId = require("../middleware/validateObjectId");
+const { validateKey } = require("../middleware/apikeys");
+const { Books, validate } = require("../models/books");
+const utils = require("../src/utils");
+
+router.get("/", [validateKey, auth], async (req, res) => {
 
 	// query: { '$expand': '*' }
 	// query: { '$expand': 'readings,users' }
@@ -84,7 +85,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 // Create a new book
-router.post("/", auth, async (req, res) => {
+router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -105,7 +106,7 @@ router.post("/", auth, async (req, res) => {
 // Get single book by ID
 // Endpoint: /<objectid>
 // Body: <book object> 
-router.get("/:id", [auth, validateObjectId], async (req, res) => {
+router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 	const book = await Books.findById(req.params.id).select("-__v");
 
@@ -118,7 +119,7 @@ router.get("/:id", [auth, validateObjectId], async (req, res) => {
 // Update book by ID
 // Endpoint: /<objectid>
 // Body: <book object> 
-router.put("/:id", [auth, validateObjectId], async (req, res) => {
+router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -141,7 +142,7 @@ router.put("/:id", [auth, validateObjectId], async (req, res) => {
 // Update book's image file 
 // Endpoint: /<objectid>
 // Body form-data: file: <uploadfile>
-router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
+router.post("/upload/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 	if (!req.files || Object.keys(req.files).length === 0) {
 		return res.status(400).send('No files were uploaded.');
@@ -211,7 +212,7 @@ router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
 });
 
 // Delete a book
-router.delete("/:id", [auth, admin, validateObjectId], async (req, res) => {
+router.delete("/:id", [validateKey, auth, admin, validateObjectId], async (req, res) => {
 	const book = await Books.findByIdAndRemove(req.params.id);
 
 	if (!book)

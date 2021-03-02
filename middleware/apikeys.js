@@ -1,5 +1,7 @@
 const { func, any } = require("joi");
 const { isArguments, reject } = require("lodash");
+const config = require("config");
+
 const { User } = require("../models/user");
 
 const MAX = process.env.API_MAX || 100;
@@ -14,7 +16,7 @@ const genKey = () => {
 
 const getApiKey = (user, req) => {
   const today = new Date().toISOString().split('T')[0];
-  user.host = req.header('origin');
+  user.host = req.headers.host;
   user.api_key = genKey();
   user.usage = [{ date: today, count: 0 }];
   return user;
@@ -22,8 +24,10 @@ const getApiKey = (user, req) => {
 
 const validateKey = async (req, res, next) => {
 
+  if (!config.get("requiresAuth")) return next();
+
   // Where is the API key expected to be?
-  const host = req.header('origin');
+  const host = req.headers.host;
   const api_key = req.header('x-api-key');
   // console.log("<<<HOST/APIKEY>>>", host, api_key);
   if (!host || host === undefined ||
