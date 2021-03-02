@@ -5,6 +5,7 @@ const users = require("../routes/users");
 const books = require("../routes/books");
 const readings = require("../routes/readings");
 const error = require("../middleware/error");
+const gallery = require("../routes/gallery");
 
 module.exports = function (app) {
 	app.use(express.json());
@@ -17,5 +18,6 @@ module.exports = function (app) {
 	app.use("/api/readings", readings);
 	app.use(express.static(global.appRoot + '/public'));
 	app.use("/images", express.static('images'));
+	app.use("/gallery", gallery);
 	app.use(error);
 };

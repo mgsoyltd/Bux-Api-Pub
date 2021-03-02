@@ -173,6 +173,15 @@ router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
 	// console.log(imageUrl);
 	// console.log(filePath);
 
+	// // Move image file without conversion
+	// fileData.mv(global.appRoot + imagePath + fileName, function (err) {
+	// 	if (err) {
+	// 		return res.status(400).send(err);
+	// 	} else {
+	// 		console.log(`Image uploaded successfully to ${imageUrl}`);
+	// 	}
+	// });
+
 	// Resize the image
 	sharp(fileData.data)
 		.resize(512)
@@ -184,14 +193,6 @@ router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
 				console.log(`Image uploaded successfully to ${imageUrl}`);
 			}
 		});
-
-	// fileData.mv(global.appRoot + imagePath + fileName, function (err) {
-	// 	if (err) {
-	// 		return res.status(400).send(err);
-	// 	} else {
-	// 		console.log(`Image uploaded successfully to ${imageUrl}`);
-	// 	}
-	// });
 
 	const book = await Books.findById(req.params.id).select("-__v");
 	if (!book)
