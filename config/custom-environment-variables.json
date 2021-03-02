@@ -1,0 +1,4 @@
+{
+	"jwtPrivateKey": "books_jwtPrivateKey"
+	//"db": "https://realm.mongodb.com/api/client/v2.0/app/mgsapp-kshkm/auth/providers/local-userpass"
+}

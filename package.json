@@ -1,0 +1,34 @@
+{
+	"name": "bux",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"test": "jest --watchAll --maxWorkers=1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcrypt": "^5.0.0",
+		"config": "^3.3.3",
+		"express": "^4.17.1",
+		"express-async-errors": "^3.1.1",
+		"express-fileupload": "^1.2.1",
+		"http": "^0.0.1-security",
+		"joi": "^17.4.0",
+		"joi-objectid": "^3.0.1",
+		"jsonwebtoken": "^8.5.1",
+		"lodash": "^4.17.21",
+		"mongoose": "^5.11.17",
+		"multer": "^1.4.2",
+		"winston": "^3.3.3"
+	},
+	"jest": {
+		"testEnvironment": "node"
+	},
+	"devDependencies": {
+		"jest": "^26.6.3",
+		"supertest": "^6.1.3"
+	}
+}
