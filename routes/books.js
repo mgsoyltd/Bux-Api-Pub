@@ -166,36 +166,6 @@ router.post("/upload/:id", [auth, validateObjectId], async (req, res) => {
 	// console.log(fileData);
 	console.log("filename:", fileName, "extention:", ext, "mimetype:", contentType);
 
-	// // Store only one image by name
-	// let image = await Images.findOne({ name: fileData.name });
-	// if (!image) {
-	// 	image = new Images(_.pick(fileData, ["name"]));
-	// }
-
-	// // Populate the data
-	// image.size = fileData.size;
-	// image.data = fileData.data;
-	// image.contentType = contentType;
-
-	// // Exclude _id from the validation
-	// const { _id, ...imageData } = image._doc;
-	// // Validate image object
-	// const { error } = validateImage(imageData);
-	// if (error) return res.status(400).send(error.details[0].message);
-
-	// try {
-	// 	// Save image to DB
-	// 	await image.save();
-
-	// } catch (ex) {
-	// 	return res.status(400).send(ex.message);
-	// }
-
-	// Parse URL for the image
-	// e.g. http://localhost:3000/api/images/6033cd27e556ba0c11323fd3
-	// const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/api/images/${image._id}`;
-	// console.log(imageUrl);
-
 	const imagePath = '/public/images/';
 	const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/images/${fileName}`;
 	// console.log(imageUrl);
