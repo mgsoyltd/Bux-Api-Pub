@@ -27,13 +27,21 @@ router.post("/", [validateKey, auth, admin], async (req, res) => {
 	let user = await User.findOne({ email: req.body.email });
 	if (user) return res.status(400).send("User already registered.");
 
-	user = new User(_.pick(req.body, normalView));
+	console.log(req.body);
+
+	user = new User(_.pick(req.body, ["name", "email", "password"]));
 	try {
 		// Generage API Key
 		user = getApiKey(user, req);
+
+		console.log(user);
+
 		// Hash the password
 		const salt = await bcrypt.genSalt(10);
 		user.password = await bcrypt.hash(user.password, salt);
+
+		console.log(user);
+
 		// Save to DB
 		await user.save();
 	} catch (ex) {

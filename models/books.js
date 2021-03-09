@@ -36,7 +36,7 @@ function validateBook(book) {
 			title: Joi.string().max(255).required(),
 			author: Joi.string().max(255).required(),
 			ISBN: Joi.string().min(10).max(20).required(),
-			description: Joi.string(),
+			description: Joi.string().empty(''),
 			pages: Joi.number(),
 			imageURL: Joi.string().empty('')	// !! Allow empty string !!
 		});

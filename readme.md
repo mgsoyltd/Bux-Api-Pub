@@ -1,8 +1,8 @@
 ## Introduction
 
-This project is the backend of Bux - a books reading goal app.
+This project is the backend REST API of Bux - a books reading goal app.
 
-This is the implementation of Bux in Node.js.
+This is the implementation of Bux API in Node.js.
 
 ## Setup
 

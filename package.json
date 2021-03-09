@@ -1,5 +1,5 @@
 {
-	"name": "bux",
+	"name": "buxapi",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
@@ -12,6 +12,7 @@
 	"dependencies": {
 		"bcrypt": "^5.0.0",
 		"config": "^3.3.3",
+		"cors": "^2.8.5",
 		"express": "^4.17.1",
 		"express-async-errors": "^3.1.1",
 		"express-fileupload": "^1.2.1",

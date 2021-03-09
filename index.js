@@ -8,7 +8,17 @@ const path = require('path');
 // Save the app's root directory
 global.appRoot = path.resolve(__dirname);
 
+// // Allow cross-origin requests
+// app.options('/url...', function (req, res, next) {
+//     res.header('Access-Control-Allow-Origin', "*");
+//     res.header('Access-Control-Allow-Methods', "GET, POST, OPTIONS, PUT, DELETE");
+//     res.header("Access-Control-Allow-Headers", "X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+//     res.header("Access-Control-Max-Age", "1728000");
+//     return res.sendStatus(200);
+// });
+
 require("./startup/logging")();
+require("./startup/cors")(app);
 require("./startup/routes")(app);
 require("./startup/config")();
 require("./startup/db")();

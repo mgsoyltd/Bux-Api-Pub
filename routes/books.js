@@ -206,7 +206,7 @@ router.post("/upload/:id", [validateKey, auth, validateObjectId], async (req, re
 		if (error) {
 			return res.status(404).send(error.details[0].message);
 		}
-		return res.status(200).send(`Image uploaded successfully to ${imageUrl}`);
+		return res.status(200).send(`${imageUrl}`);
 	});
 
 });

@@ -7,6 +7,7 @@ const admin = require("../middleware/admin");
 const validateObjectId = require("../middleware/validateObjectId");
 const { validateKey } = require("../middleware/apikeys");
 const { Readings, validate } = require("../models/readings");
+const Mongoose = require("mongoose");
 
 router.get("/", [validateKey, auth], async (req, res) => {
 
@@ -95,12 +96,78 @@ router.post("/", [validateKey, auth], async (req, res) => {
 });
 
 router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
-	const readings = await Readings.findById(req.params.id).select("-__v");
+	// const readings = await Readings.findById(req.params.id).select("-__v");
 
-	if (!readings)
-		return res.status(404).send("The readings with the given ID was not found.");
+	// if (!readings)
+	// 	return res.status(404).send("The readings with the given ID was not found.");
 
-	res.send(readings);
+	// res.send(readings);
+
+	if (req.query.hasOwnProperty("$expand")) {
+		const coll = req.query["$expand"].split(',');
+		if (coll.includes('*')) {
+			const readingId = new Mongoose.Types.ObjectId(req.params.id);
+			console.log(req.params.id);
+			const expandAll =
+				[
+					{
+						$match: {
+							_id: readingId
+						}
+					},
+					{
+						"$sort": {
+							"updatedAt": -1
+						}
+					},
+					{
+						"$lookup": {
+							"from": "books",
+							"localField": "books_id",
+							"foreignField": "_id",
+							"as": "books_data"
+						}
+					},
+					{
+						"$unwind": {
+							"path": "$books_data",
+							"preserveNullAndEmptyArrays": true
+						}
+					},
+					{
+						"$lookup": {
+							"from": "users",
+							"localField": "users_id",
+							"foreignField": "_id",
+							"as": "users_data"
+						}
+					},
+					{
+						"$unwind": {
+							"path": "$users_data",
+							"preserveNullAndEmptyArrays": true
+						}
+					}
+				];
+			const readings = await Readings.aggregate(expandAll);
+			res.send(readings);
+		}
+		else {
+			return res.status(400).send("Bad Request");
+		}
+	}
+	else if (Object.keys(req.query).length !== 0) {
+		return res.status(400).send("Bad Request");
+	}
+	else {
+		// Get non-expanded view
+		const readings = await Readings.findById(req.params.id).select("-__v");
+		if (!readings)
+			return res.status(404).send("The readings with the given ID was not found.");
+
+		res.send(readings);
+	}
+
 });
 
 router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
