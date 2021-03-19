@@ -38,7 +38,8 @@ function validateBook(book) {
 			ISBN: Joi.string().min(10).max(20).required(),
 			description: Joi.string().empty(''),
 			pages: Joi.number(),
-			imageURL: Joi.string().empty('')	// !! Allow empty string !!
+			imageURL: Joi.string().empty(''),	// !! Allow empty string !!
+			book: Joi.allow(null),
 		});
 	return schema.validate(book);
 }

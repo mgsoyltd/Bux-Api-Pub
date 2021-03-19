@@ -37,7 +37,7 @@ function validateReadings(readings) {
 			current_page: Joi.number(),
 			time_spent: Joi.number(),
 			rating: Joi.number(),
-			comments: Joi.string()
+			comments: Joi.string().empty("")
 		});
 	return schema.validate(readings);
 }

@@ -87,7 +87,10 @@ router.get("/", [validateKey, auth], async (req, res) => {
 // Create a new book
 router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) {
+		console.log("<<<POST VALIDATE>>>", error.details[0].message);
+		return res.status(400).send(error.details[0].message);
+	}
 
 	let book = await Books.findOne({ ISBN: req.body.ISBN });
 	if (book) return res.status(400).send("Book already registered.");
@@ -95,10 +98,12 @@ router.post("/", [validateKey, auth], async (req, res) => {
 	book = new Books(_.pick(req.body, ["title", "author", "ISBN", "description", "pages", "imageURL"]));
 	try {
 		// Save to DB
+		console.log("<<POST BOOK>>", book);
 		await book.save();
 		res.send(book);
 
 	} catch (ex) {
+		console.log("<<<POST ERROR>>>", ex.message);
 		return res.status(400).send(ex.message);
 	}
 });
@@ -127,8 +132,9 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		req.params.id,
 		{
 			title: req.body.title,
+			ISBN: req.body.ISBN,
 			author: req.body.author,
-			description: req.body.description,
+			description: req.body.description || "",
 			pages: req.body.pages,
 			imageURL: req.body.imageURL
 		},

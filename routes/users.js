@@ -92,10 +92,10 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	if (!req.body.password) return res.status(400).send("Password is required..");
 
 	user = await User.findOne({ email: req.body.email });
-	if (!user) return res.status(400).send('Invalid email or password.');
+	if (!user) return res.status(401).send('Invalid email or password.');
 
 	const validPassword = await bcrypt.compare(req.body.password, user.password);
-	if (!validPassword) return res.status(400).send('Invalid email or password.');
+	if (!validPassword) return res.status(401).send('Invalid email or password.');
 
 	// ALl good - name and email can be changed and a new password via req.body.newpass
 
@@ -124,7 +124,7 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		}
 	}
 	else {
-		// Only name of email can be updated
+		// Only name or email can be updated
 		user = await User.findByIdAndUpdate(
 			req.params.id,
 			{

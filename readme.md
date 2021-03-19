@@ -52,10 +52,8 @@ If you look at config/default.json, you'll see a property called jwtPrivateKey. 
 
 On Mac:
 
-    export vidly_jwtPrivateKey=yourSecureKey
+    export jwtPrivateKey=yourSecureKey
 
 On Windows:
 
-    set vidly_jwtPrivateKey=yourSecureKey
-
-Admin test user: erlehi@domain.com/123456
+    set jwtPrivateKey=yourSecureKey

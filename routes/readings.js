@@ -16,8 +16,14 @@ router.get("/", [validateKey, auth], async (req, res) => {
 	if (req.query.hasOwnProperty("$expand")) {
 		const coll = req.query["$expand"].split(',');
 		if (coll.includes('*')) {
+			const userId = new Mongoose.Types.ObjectId(req.user._id);
 			const expandAll =
 				[
+					{
+						$match: {
+							users_id: userId
+						}
+					},
 					{
 						"$sort": {
 							"updatedAt": -1
@@ -71,6 +77,7 @@ router.get("/", [validateKey, auth], async (req, res) => {
 
 router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
+	console.log("<<<POST VALIDATE>>>", error);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	let readings = await Readings.findOne({ books_id: req.body.books_id, books_id: req.body.users_id });
@@ -87,10 +94,12 @@ router.post("/", [validateKey, auth], async (req, res) => {
 		]));
 	try {
 		// Save to DB
+		console.log("<<POST READING>>", readings);
 		await readings.save();
 		res.send(readings);
 
 	} catch (ex) {
+		console.log("<<<POST ERROR>>>", ex.message);
 		return res.status(400).send(ex.message);
 	}
 });
@@ -107,12 +116,13 @@ router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		const coll = req.query["$expand"].split(',');
 		if (coll.includes('*')) {
 			const readingId = new Mongoose.Types.ObjectId(req.params.id);
-			console.log(req.params.id);
+			const userId = new Mongoose.Types.ObjectId(req.user._id);
 			const expandAll =
 				[
 					{
 						$match: {
-							_id: readingId
+							_id: readingId,
+							users_id: userId
 						}
 					},
 					{
@@ -193,7 +203,7 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	res.send(readings);
 });
 
-router.delete("/:id", [validateKey, auth, validateObjectId, admin], async (req, res) => {
+router.delete("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const readings = await Readings.findByIdAndRemove(req.params.id);
 
 	if (!readings)
