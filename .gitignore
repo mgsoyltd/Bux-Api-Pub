@@ -3,7 +3,7 @@ node_modules/
 coverage/
 logfile.log
 uncaughtExceptions_log.json
-test/
 data/
 public/
 stuff/
+seed.js

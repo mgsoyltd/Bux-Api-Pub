@@ -22,10 +22,6 @@ Next, from the project folder, install the dependencies:
 
     npm i
 
-### Populate the Database
-
-    node seed.js
-
 ### Run the Tests
 
 You're almost done! Run the tests to make sure everything is working:
@@ -42,7 +38,7 @@ This will launch the Node server on port 3900. If that port is busy, you can set
 
 Open up your browser and head over to:
 
-http://localhost:3900/api/books?$expand=readings,users
+http://localhost:3900/api/books?$expand=\*
 
 You should see the list of genres. That confirms that you have set up everything successfully.
 
@@ -52,8 +48,13 @@ If you look at config/default.json, you'll see a property called jwtPrivateKey. 
 
 On Mac:
 
-    export jwtPrivateKey=yourSecureKey
+    export jwtPrivateKey=<yourSecureKey>
 
 On Windows:
 
-    set jwtPrivateKey=yourSecureKey
+    set jwtPrivateKey=<yourSecureKey>
+
+In production the following environment variables must be set:
+
+    bux_jwtPrivateKey   <yourSecureKey>
+    bux_db              <database connection string>

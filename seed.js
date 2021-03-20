@@ -6,16 +6,16 @@ const { Readings } = require("./models/readings");
 
 const users =
   [{
-    "name": "Eki Kauhalevi",
+    "name": "Eki",
     "email": "eki@domain.com",
     "password": "654321",
     "isAdmin": true
   }, {
-    "name": "Julia Kauhalevi",
+    "name": "Julia",
     "email": "julia@domain.com",
     "password": "$2b$10$0jR/1.J0MqsAM2dXX243du6fPUoHyfWP0GkmZZRJtKpPfeK1StM4u",
   }, {
-    "name": "Joni Kauhalevi",
+    "name": "Joni",
     "email": "joni@domain.com",
     "password": "$2b$10$76Xn9WBI7uuM1AWI4JFE0eSj1mWb91UphU9shrHdtiATkLZblWIMa",
   }];
