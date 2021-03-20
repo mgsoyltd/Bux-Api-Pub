@@ -29,7 +29,7 @@ const validateKey = async (req, res, next) => {
   // Where is the API key expected to be?
   const host = req.headers.host;
   const api_key = req.header('x-api-key');
-  console.log("<<<HOST/APIKEY>>>", host, api_key);
+  // console.log("<<<HOST/APIKEY>>>", host, api_key);
   if (!host || host === undefined ||
     !api_key || api_key === undefined) {
     // stop and respond
@@ -43,7 +43,7 @@ const validateKey = async (req, res, next) => {
       api_key: api_key
     });
 
-  console.log("<<<ACCOUNT>>>", account);
+  // console.log("<<<ACCOUNT>>>", account);
   if (account) {
     // good match
     // check the usage
