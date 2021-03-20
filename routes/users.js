@@ -34,13 +34,13 @@ router.post("/", [validateKey, auth, admin], async (req, res) => {
 		// Generage API Key
 		user = getApiKey(user, req);
 
-		console.log(user);
+		// console.log(user);
 
 		// Hash the password
 		const salt = await bcrypt.genSalt(10);
 		user.password = await bcrypt.hash(user.password, salt);
 
-		console.log(user);
+		// console.log(user);
 
 		// Save to DB
 		await user.save();
