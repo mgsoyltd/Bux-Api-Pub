@@ -4,6 +4,5 @@ coverage/
 logfile.log
 uncaughtExceptions_log.json
 data/
-public/
 stuff/
 seed.js
