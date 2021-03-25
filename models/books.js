@@ -39,6 +39,7 @@ function validateBook(book) {
 			description: Joi.string().empty(''),
 			pages: Joi.number(),
 			imageURL: Joi.string().empty(''),	// !! Allow empty string !!
+			image: Joi.allow(null),
 			book: Joi.allow(null),
 		});
 	return schema.validate(book);

@@ -77,7 +77,6 @@ router.get("/", [validateKey, auth], async (req, res) => {
 
 router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
-	console.log("<<<POST VALIDATE>>>", error);
 	if (error) return res.status(400).send(error.details[0].message);
 
 	let readings = await Readings.findOne({ books_id: req.body.books_id, books_id: req.body.users_id });
@@ -94,7 +93,7 @@ router.post("/", [validateKey, auth], async (req, res) => {
 		]));
 	try {
 		// Save to DB
-		console.log("<<POST READING>>", readings);
+		// console.log("<<POST READING>>", readings);
 		await readings.save();
 		res.send(readings);
 
