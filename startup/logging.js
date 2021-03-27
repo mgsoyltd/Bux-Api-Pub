@@ -3,7 +3,6 @@ const { level } = require("winston");
 const winston = require("winston");
 
 module.exports = function () {
-	// const console = new winston.transports.Console();
 	const console = new winston.transports.Console({
 		format: winston.format.combine(
 			winston.format.colorize(),
@@ -35,8 +34,8 @@ module.exports = function () {
 		throw ex;
 	});
 
-	// process.on("uncaughtException", (ex) => {
-	// 	winston.error(ex.message, ex);
-	// 	process.exit(1);
-	// });
+	process.on("uncaughtException", (ex) => {
+		winston.error(ex.message, ex);
+		process.exit(1);
+	});
 };

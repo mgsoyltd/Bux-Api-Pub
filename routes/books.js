@@ -183,55 +183,55 @@ router.post("/upload/:id", [validateKey, auth, validateObjectId], async (req, re
 	// console.log(fileData);
 	console.log("filename:", fileName, "extention:", ext, "mimetype:", contentType);
 
-	if (config.get("dbImages")) {
-		// Resize the image and convert to jpeg format
-		const imageData = await sharp(fileData.data)
-			.resize(512)
-			.toFormat("jpeg")
-			.toBuffer();
-		if (imageData) {
-			book.image.data = imageData;
-			book.image.contentType = 'image/jpeg';
-			book.imageURL = "";
-			console.log('Image converted successfully.');
-		}
-		else {
-			return res.status(400).send("Error converting image.");
-		}
+	// if (config.get("dbImages")) {
+	// Resize the image and convert to jpeg format
+	const imageData = await sharp(fileData.data)
+		.resize(512)
+		.toFormat("jpeg")
+		.toBuffer();
+	if (imageData) {
+		book.image.data = imageData;
+		book.image.contentType = 'image/jpeg';
+		book.imageURL = "";
+		console.log('Image converted successfully.');
 	}
 	else {
-		const imagePath = '/public/images/';
-		const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/images/${fileName}`;
-		const filePath = global.appRoot + imagePath + fileName;
-		// console.log(imageUrl);
-		// console.log(filePath);
-
-		// Resize the image and convert to jpeg format
-		sharp(fileData.data)
-			.resize(512)
-			.toFormat("jpeg")
-			.toFile(filePath, (err, info) => {
-				if (err) {
-					return res.status(400).send(err);
-				} else {
-					console.log(`Image uploaded successfully to ${imageUrl}`);
-				}
-			});
-
-		// Update the imageURL on the book
-		book.imageURL = imageUrl;
+		return res.status(400).send("Error converting image.");
 	}
+	// }
+	// else {
+	// 	const imagePath = '/public/images/';
+	// 	const imageUrl = `${req.connection.encrypted ? "https" : "http"}://${req.headers.host}/images/${fileName}`;
+	// 	const filePath = global.appRoot + imagePath + fileName;
+	// 	// console.log(imageUrl);
+	// 	// console.log(filePath);
+
+	// 	// Resize the image and convert to jpeg format
+	// 	sharp(fileData.data)
+	// 		.resize(512)
+	// 		.toFormat("jpeg")
+	// 		.toFile(filePath, (err, info) => {
+	// 			if (err) {
+	// 				return res.status(400).send(err);
+	// 			} else {
+	// 				console.log(`Image uploaded successfully to ${imageUrl}`);
+	// 			}
+	// 		});
+
+	// 	// Update the imageURL on the book
+	// 	book.imageURL = imageUrl;
+	// }
 
 	book.save((error, savedBook) => {
 		if (error) {
 			return res.status(404).send(error.details[0].message);
 		}
-		if (config.get("dbImages")) {
-			return res.status(200).send('Image uploaded successfully.');
-		}
-		else {
-			return res.status(200).send(`${imageUrl}`);
-		}
+		// if (config.get("dbImages")) {
+		return res.status(200).send('Image uploaded successfully.');
+		// }
+		// else {
+		// 	return res.status(200).send(`${imageUrl}`);
+		// }
 	});
 
 });

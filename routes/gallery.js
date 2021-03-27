@@ -7,6 +7,7 @@ const admin = require("../middleware/admin");
 const { validateKey } = require("../middleware/apikeys");
 const utils = require("../src/utils");
 
+global.appRoot = path.resolve(__dirname);
 const imageDir = global.appRoot + '/public/images/';
 
 router.get("/", [validateKey, auth], async (req, res) => {

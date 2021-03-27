@@ -8,7 +8,8 @@ module.exports = function () {
 		{
 			useFindAndModify: false,		// continue using findOneAndUpdate()
 			useNewUrlParser: true,
-			useUnifiedTopology: true
+			useUnifiedTopology: true,
+			useCreateIndex: true
 		})
 		.then(() => winston.info(`Connected to ${db}...`))
 		.catch(err => winston.error(err));
