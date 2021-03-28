@@ -1,9 +1,12 @@
 const winston = require("winston");
 const express = require("express");
 const config = require("config");
-const app = express();
+const helmet = require('helmet');
 const path = require('path');
 const { addColors } = require("winston/lib/winston/config");
+
+const app = express();
+app.use(helmet());
 
 // Save the app's root directory 
 // global.appRoot = path.resolve(__dirname);
