@@ -4,7 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "node index.js",
+		"start": "pm2 start index.js",
+		"dev": "nodemon index.js",
 		"test": "jest --watchAll --maxWorkers=1"
 	},
 	"author": "",

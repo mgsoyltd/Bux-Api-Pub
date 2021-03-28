@@ -32,7 +32,8 @@ All tests should pass.
 
 ### Start the Server
 
-    node index.js
+    npm run dev     Development
+    npm start       Production
 
 This will launch the Node server on port 3900. If that port is busy, you can set a different point in config/default.json.
 

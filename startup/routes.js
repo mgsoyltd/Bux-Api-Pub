@@ -16,8 +16,8 @@ module.exports = function (app) {
 	app.use("/api/users", users);
 	app.use("/api/books", books);
 	app.use("/api/readings", readings);
-	app.use(express.static(global.appRoot + '/public'));
-	app.use("/images", express.static('images'));
+	// app.use(express.static(global.appRoot + '/public'));
+	// app.use("/images", express.static('images'));
 	// app.use("/gallery", gallery);
 	app.use(error);
 };
