@@ -18,7 +18,7 @@ require("./startup/config")();
 require("./startup/db")();
 require("./startup/validation")();
 
-// JUST FOR TESTING UNCAUGHT PROMISE EXCEPTION
+// JUST FOR TESTING UNCAUGHT PROMISE EXCEPTION
 // const p = Promise.reject("Something went down");
 // p.then("Done");
 
