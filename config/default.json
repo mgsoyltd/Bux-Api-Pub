@@ -1,7 +1,6 @@
 {
-	"jwtPrivateKey": "unsecureKey",
-	"db": "mongodb://localhost/booksdb",
-	"port": "3000",
+	"jwtPrivateKey": "bux_jwtPrivateKey",
+	"db": "bux_db",
 	"requiresAuth": true,
 	"requiresApiKey": false,
 	"dbImages": true
