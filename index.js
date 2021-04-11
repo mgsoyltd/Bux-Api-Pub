@@ -11,12 +11,12 @@ app.use(helmet());
 // Save the app's root directory 
 // global.appRoot = path.resolve(__dirname);
 
-require("../startup/config")();
-require("../startup/cors")(app);
-require("../startup/logging")();
-require("../startup/db")();
-require("../startup/routes")(app);
-require("../startup/validation")();
+require("./startup/config")();
+require("./startup/cors")(app);
+require("./startup/logging")();
+require("./startup/db")();
+require("./startup/routes")(app);
+require("./startup/validation")();
 
 // JUST FOR TESTING UNCAUGHT PROMISE EXCEPTION
 // const p = Promise.reject("Something went down");
