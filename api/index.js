@@ -24,10 +24,10 @@ require("../startup/validation")();
 
 const port = process.env.PORT || config.get("port") || 3000;
 
-app.get('/', (req, res) => {
-    // Health check route
-    res.status(200).send({ data: { message: 'Welcome to the Bux API.' } });
-});
+// app.get('/', (req, res) => {
+//     // Health check route
+//     res.status(200).send({ data: { message: 'Welcome to the Bux API.' } });
+// });
 
 const server = app.listen(port, (err) => {
     if (err) {
