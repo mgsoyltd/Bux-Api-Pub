@@ -2,7 +2,7 @@
 	"jwtPrivateKey": "unsecureKey",
 	"db": "mongodb://localhost/booksdb",
 	"port": "3000",
-	"requiresAuth": true,
+	"requiresAuth": false,
 	"requiresApiKey": false,
 	"dbImages": true
 }
