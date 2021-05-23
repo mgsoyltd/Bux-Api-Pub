@@ -1,9 +1,9 @@
 .DS_Store
 node_modules/
-coverage/
 logfile.log
 uncaughtExceptions_log.json
 data/
 stuff/
-seed.js
 public/
+seed.js
+id_rsa_priv.pem

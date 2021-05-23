@@ -1,27 +1,38 @@
 const Joi = require('joi');
-const bcrypt = require('bcrypt');
-const _ = require('lodash');
 const express = require('express');
 const router = express.Router();
 
 const { User } = require('../models/user');
 const { validateKey } = require("../middleware/apikeys");
+const authutils = require("../src/authutils");
 
+/**	
+ * Login Authentication to validate an existing user and issue a JWT
+ * Body: { email, password } 
+ * @param {*} req.body.email 		- user's e-mail address
+ * @param {*} req.body.password - user's password (plain text)
+ * @returns res.status 200 - authorized with res.jwt
+ * 					res.status 401 - unauthorized
+ */
 router.post('/', validateKey, async (req, res) => {
-	// Login Authentication
-	// Body: { email, password } 
+
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error)
+		return res.status(400).json({ success: false, msg: error.details[0].message });
 
 	let user = await User.findOne({ email: req.body.email });
-	if (!user) return res.status(400).send('Invalid email or password.');
+	if (!user)
+		return res.status(401).json({ success: false, msg: "Invalid email or password." });
 
-	const validPassword = await bcrypt.compare(req.body.password, user.password);
-	if (!validPassword) return res.status(401).send('Invalid email or password.');
+	const isValid = authutils.validPassword(req.body.password, user.hash, user.salt);
 
-	const token = user.generateAuthToken();
+	if (isValid) {
+		const tokenObject = utils.issueJWT(user);
+		res.status(200).json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
+	} else {
+		res.status(401).json({ success: false, msg: "Invalid email or password" });
+	}
 
-	res.send(token);
 });
 
 function validate(req) {
@@ -35,4 +46,4 @@ function validate(req) {
 	return schema.validate(req);
 }
 
-module.exports = router; 
+module.exports = router;

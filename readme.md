@@ -2,7 +2,13 @@
 
 This project is the backend REST API of Bux - a books reading goal app.
 
-This is the implementation of Bux API in Node.js.
+This is the implementation of Bux API using:
+
+- Node.js
+- Express
+- Mongoose
+- jsonwebtoken (RS256 algorithm)
+- crypto
 
 ## Setup
 
@@ -15,25 +21,43 @@ To run this project, you need to install the latest version of MongoDB Community
 https://docs.mongodb.com/manual/installation/
 
 Once you install MongoDB, make sure it's running.
+In development run mongod.
+
+### Generate public/private keypair
+
+Next, you will need to generate a public/private keypair. The `.gitignore` automatically ignores the private key.
+
+```
+node generateKeypair.js
+```
 
 ### Install the Dependencies
 
 Next, from the project folder, install the dependencies:
 
+```
     npm i
+```
 
 ### Run the Tests
 
 You're almost done! Run the tests to make sure everything is working:
 
+```
     npm test
+```
 
 All tests should pass.
 
 ### Start the Server
 
+```
     npm run dev     Development
+```
+
+```
     npm start       Production
+```
 
 This will launch the Node server on port 3900. If that port is busy, you can set a different point in config/default.json.
 
@@ -43,19 +67,13 @@ http://localhost:3900/api/books?$expand=\*
 
 You should see the list of genres. That confirms that you have set up everything successfully.
 
-### (Optional) Environment Variables
-
-If you look at config/default.json, you'll see a property called jwtPrivateKey. This key is used to encrypt JSON web tokens. So, for security reasons, it should not be checked into the source control. I've set a default value here to make it easier for you to get up and running with this project. For a production scenario, you should store this key as an environment variable.
-
-On Mac:
-
-    export jwtPrivateKey=<yourSecureKey>
-
-On Windows:
-
-    set jwtPrivateKey=<yourSecureKey>
+### Environment Variables
 
 In production the following environment variables must be set:
 
-    bux_jwtPrivateKey   <yourSecureKey>
     bux_db              <database connection string>
+
+Optional environment variables:
+
+    API_MAX             <maxinum API calls per day>
+                        Only when config.requiresApiKey=true> Default is 100.
