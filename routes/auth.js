@@ -27,7 +27,7 @@ router.post('/', validateKey, async (req, res) => {
 	const isValid = authutils.validPassword(req.body.password, user.hash, user.salt);
 
 	if (isValid) {
-		const tokenObject = utils.issueJWT(user);
+		const tokenObject = authutils.issueJWT(user);
 		res.status(200).json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
 	} else {
 		res.status(401).json({ success: false, msg: "Invalid email or password" });

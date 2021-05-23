@@ -6,7 +6,7 @@ const path = require('path');
 const pathToKey = path.join(__dirname, '..', 'id_rsa_priv.pem');
 const pathToPubKey = path.join(__dirname, '..', 'id_rsa_pub.pem');
 const PRIV_KEY = fs.readFileSync(pathToKey, 'utf8');
-export const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
+const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
 
 /**
  * -------------- HELPER FUNCTIONS ----------------
@@ -69,4 +69,4 @@ function issueJWT(user) {
   }
 }
 
-module.exports = { validPassword, genPassword, issueJWT };
+module.exports = { validPassword, genPassword, issueJWT, PUB_KEY };

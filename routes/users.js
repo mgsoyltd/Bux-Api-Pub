@@ -57,7 +57,7 @@ router.post("/", [validateKey], async (req, res) => {
 	if (user)
 		return res.status(400).json({ success: false, msg: "User already registered." });
 
-	console.log(req.body);
+	// console.log(req.body);
 
 	try {
 		// New user object
@@ -71,7 +71,7 @@ router.post("/", [validateKey], async (req, res) => {
 		user.salt = saltHash.salt;
 		user.hash = saltHash.hash;
 
-		console.log(user);
+		// console.log(user);
 
 		// Save to DB
 		await user.save();
@@ -84,13 +84,6 @@ router.post("/", [validateKey], async (req, res) => {
 	// Created successfully
 	res.status(201).json({ success: true, user: user });
 	// res.status(201).json({ success: true, user: _.pick(user, normalView) });
-
-	// res
-	// 	.header("x-auth-token", token)
-	// 	.header("access-control-expose-headers", "x-auth-token")
-	// 	.header("x-api-key", user.api_key)
-	// 	.status(201)	// Created
-	// 	.send(_.pick(user, normalView));
 
 });
 
