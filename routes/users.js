@@ -12,7 +12,7 @@ const validateObjectId = require("../middleware/validateObjectId");
 const { User } = require("../models/user");
 const authutils = require("../src/authutils");
 
-const normalView = ["_id", "email"];
+const normalView = ["_id", "email", "name"];
 
 /**
  * Validate email and password passed in req.body
@@ -23,6 +23,7 @@ function validate(req) {
 
 	const schema = Joi.object(
 		{
+			name: Joi.string().min(3).max(50).empty(''),
 			email: Joi.string().min(5).max(255).required().email(),
 			password: passwordComplexity()
 		});
@@ -45,6 +46,7 @@ router.get("/", [validateKey, auth, admin], async (req, res) => {
  * Register a new user
  * @param req.body.email			User e-mail
  * @param req.body.password		Password (plain text)
+ * @param req.body.name				User name (optional)
  */
 // router.post("/", [validateKey, auth, admin], async (req, res) => {
 router.post("/", [validateKey], async (req, res) => {
@@ -53,6 +55,7 @@ router.post("/", [validateKey], async (req, res) => {
 	if (error)
 		return res.status(400).json({ success: false, msg: error.details[0].message });
 
+	// Look up user by email
 	let user = await User.findOne({ email: req.body.email });
 	if (user)
 		return res.status(400).json({ success: false, msg: "User already registered." });
@@ -61,7 +64,7 @@ router.post("/", [validateKey], async (req, res) => {
 
 	try {
 		// New user object
-		user = new User(_.pick(req.body, ["email"]));
+		user = new User(_.pick(req.body, ["email", "name"]));
 
 		// Generage API Key
 		user = getApiKey(user, req);
@@ -123,12 +126,14 @@ router.get("/:id", [validateKey, auth, admin, validateObjectId], async (req, res
 /**	
  * Update user by ID
  * Endpoint: /<objectid>
- * Body: <user object> 
+ * @param req.body.email			User e-mail
+ * @param req.body.password		Password (plain text)
+ * @param req.body.name				User name (optional)
  * !! User must be authenticated 
  */
 router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
-	let request = _.pick(req.body, ["email", "password"]);
+	let request = _.pick(req.body, ["email", "name", "password"]);
 	const { error } = validate(request);
 	if (error)
 		return res.status(400).json({ success: false, msg: error.details[0].message });
@@ -152,6 +157,7 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 	// Check if password change requested
 	if (req.body.newpass) {
+
 		let newPassword = req.body.newpass;
 		if (!newPassword)
 			return res.status(400).json({ success: false, msg: "New password cannot be empty!" });
@@ -162,35 +168,25 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		if (error)
 			return res.status(400).json({ success: false, msg: error.details[0].message });
 
-		try {
-			user.email = req.body.email;
-			// Hash the new password
-			const saltHash = authutils.genPassword(newPassword);
-			user.salt = saltHash.salt;
-			user.hash = saltHash.hash;
-
-			// Save to DB
-			await user.save();
-
-		} catch (ex) {
-			return res.status(400).json({ success: false, msg: ex.message });
-		}
+		// Hash the new password
+		const saltHash = authutils.genPassword(newPassword);
+		user.salt = saltHash.salt;
+		user.hash = saltHash.hash;
 	}
 	else {
-		// Only email can be updated
-		user = await User.findByIdAndUpdate(
-			req.params.id,
-			{
-				email: req.body.email
-			},
-			{
-				new: true,		// return updated document
-			}
-		);
+		// Only email and name can be updated
 	}
 
-	if (!user)
-		return res.status(404).json({ success: false, msg: "The user with the given ID was not found." });
+	try {
+		user.email = req.body.email;
+		user.name = req.body.name;
+
+		// Save to DB
+		await user.save();
+
+	} catch (ex) {
+		return res.status(400).json({ success: false, msg: ex.message });
+	}
 
 	// Return limited view of user data
 	return res.json({ success: true, user: _.pick(user, normalView) });
