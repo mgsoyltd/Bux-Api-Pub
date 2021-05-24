@@ -91,7 +91,7 @@ router.get("/", [validateKey, auth], async (req, res) => {
 router.post("/", [validateKey, auth], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) {
-		console.log("<<<POST VALIDATE>>>", error.details[0].message);
+		// console.log("<<<POST VALIDATE>>>", error.details[0].message);
 		return res.status(400).send(error.details[0].message);
 	}
 
@@ -101,7 +101,7 @@ router.post("/", [validateKey, auth], async (req, res) => {
 	book = new Books(_.pick(req.body, ["title", "author", "ISBN", "description", "pages", "imageURL", "image"]));
 	try {
 		// Save to DB
-		console.log("<<POST BOOK>>", book);
+		// console.log("<<POST BOOK>>", book);
 		await book.save();
 		res.send(book);
 
