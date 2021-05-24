@@ -9,9 +9,11 @@ const { validateKey } = require("../middleware/apikeys");
 const { Readings, validate } = require("../models/readings");
 const Mongoose = require("mongoose");
 
+/**
+ * Get readings
+ * 	query: { '$expand': '*' } - Optional expand query to include user dimension
+ */
 router.get("/", [validateKey, auth], async (req, res) => {
-
-	// query: { '$expand': '*' }
 
 	if (req.query.hasOwnProperty("$expand")) {
 		const coll = req.query["$expand"].split(',');
@@ -69,15 +71,43 @@ router.get("/", [validateKey, auth], async (req, res) => {
 		return res.status(400).send("Bad Request");
 	}
 	else {
-		// Get all 
-		const readings = await Readings.find().sort({ "updatedAt": -1 });
+		// Get all for current user 
+		const userId = new Mongoose.Types.ObjectId(req.user._id);
+		const filter =
+			[
+				{
+					$match: {
+						users_id: userId
+					}
+				},
+				{
+					"$sort": {
+						"updatedAt": -1
+					}
+				}
+			];
+		const readings = await Readings.aggregate(filter);
 		res.send(readings);
 	}
+	// else {
+	// 	// Get all for admin
+	// 	const readings = await Readings.find().sort({ "updatedAt": -1 });
+	// 	res.send(readings);
+	// }
 });
 
+/**	
+ * Post a reading
+ */
 router.post("/", [validateKey, auth], async (req, res) => {
+
+	req.body.users_id = req.user._id.toString();		// Current user
+	// console.log("<<POST READING>>", req.body);
 	const { error } = validate(req.body);
-	if (error) return res.status(400).send(error.details[0].message);
+	if (error) {
+		console.log(error);
+		return res.status(400).send(error.details[0].message);
+	}
 
 	let readings = await Readings.findOne({ books_id: req.body.books_id, books_id: req.body.users_id });
 	if (readings) return res.status(400).send("Reading already registered.");
@@ -91,6 +121,7 @@ router.post("/", [validateKey, auth], async (req, res) => {
 			"rating",
 			"comments"
 		]));
+	console.log("<<POST READING>>", readings);
 	try {
 		// Save to DB
 		// console.log("<<POST READING>>", readings);
@@ -103,13 +134,10 @@ router.post("/", [validateKey, auth], async (req, res) => {
 	}
 });
 
+/**	
+ * Get a single reading
+ */
 router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
-	// const readings = await Readings.findById(req.params.id).select("-__v");
-
-	// if (!readings)
-	// 	return res.status(404).send("The readings with the given ID was not found.");
-
-	// res.send(readings);
 
 	if (req.query.hasOwnProperty("$expand")) {
 		const coll = req.query["$expand"].split(',');
@@ -170,7 +198,24 @@ router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	}
 	else {
 		// Get non-expanded view
-		const readings = await Readings.findById(req.params.id).select("-__v");
+		// Filter reading by current user
+		const readingId = new Mongoose.Types.ObjectId(req.params.id);
+		const userId = new Mongoose.Types.ObjectId(req.user._id);
+		const filter =
+			[
+				{
+					$match: {
+						_id: readingId,
+						users_id: userId
+					}
+				},
+				{
+					"$sort": {
+						"updatedAt": -1
+					}
+				}
+			];
+		const readings = await Readings.aggregate(filter);
 		if (!readings)
 			return res.status(404).send("The readings with the given ID was not found.");
 
@@ -179,7 +224,12 @@ router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 });
 
+/**	
+ * Update a single reading
+ */
 router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
+
+	req.body.users_id = req.user._id.toString();		// Current user
 	const { error } = validate(req.body);
 	if (error) return res.status(400).send(error.details[0].message);
 
@@ -202,7 +252,11 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	res.send(readings);
 });
 
+/**	
+ * Delete a single reading
+ */
 router.delete("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
+
 	const readings = await Readings.findByIdAndRemove(req.params.id);
 
 	if (!readings)

@@ -11,10 +11,12 @@ const { validateKey } = require("../middleware/apikeys");
 const { Books, validate } = require("../models/books");
 const utils = require("../src/utils");
 
+/**	
+ * Get all books
+ * 	query: { '$expand': '*' }
+ *	query: { '$expand': 'readings,users' }
+ */
 router.get("/", [validateKey, auth], async (req, res) => {
-
-	// query: { '$expand': '*' }
-	// query: { '$expand': 'readings,users' }
 
 	if (req.query.hasOwnProperty("$expand")) {
 		const coll = req.query["$expand"].split(',');
@@ -109,9 +111,11 @@ router.post("/", [validateKey, auth], async (req, res) => {
 	}
 });
 
-// Get single book by ID
-// Endpoint: /<objectid>
-// Body: <book object> 
+/**
+ * Get single book by ID
+ * 	Endpoint: /<objectid>
+ * 	Body: <book object> 
+ */
 router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 	const book = await Books.findById(req.params.id).select("-__v");
@@ -122,9 +126,11 @@ router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	res.send(book);
 });
 
-// Update book by ID
-// Endpoint: /<objectid>
-// Body: <book object> 
+/**	
+ * Update book by ID
+ * 	Endpoint: /<objectid>
+ * 	Body: <book object> 
+ */
 router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) {
@@ -149,9 +155,11 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	res.send(book);
 });
 
-// Update book's image file 
-// Endpoint: /<objectid>
-// Body form-data: file: <uploadfile>
+/**
+ * Update book's image file 
+ * 	Endpoint: /<objectid>
+ * 	Body form-data: file: <uploadfile>
+ */
 router.post("/upload/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 
 	if (!req.files || Object.keys(req.files).length === 0) {
@@ -236,7 +244,9 @@ router.post("/upload/:id", [validateKey, auth, validateObjectId], async (req, re
 
 });
 
-// Delete a book
+/**
+ * Delete a book
+ */
 router.delete("/:id", [validateKey, auth, admin, validateObjectId], async (req, res) => {
 	const book = await Books.findByIdAndRemove(req.params.id);
 

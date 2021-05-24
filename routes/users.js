@@ -23,7 +23,7 @@ function validate(req) {
 
 	const schema = Joi.object(
 		{
-			name: Joi.string().min(3).max(50).empty(''),
+			name: Joi.string().min(3).max(50).required(),
 			email: Joi.string().min(5).max(255).required().email(),
 			password: passwordComplexity()
 		});
@@ -142,8 +142,8 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	if (!req.body.password)
 		return res.status(400).json({ success: false, msg: "Password is required.." });
 
-	// Look up user from DB by email
-	let user = await User.findOne({ email: req.body.email });
+	// Look up user from DB by ID
+	let user = await User.findById(req.params.id).select("-__v");		// exclude versionKey
 	if (!user)
 		return res.status(401).json({ success: false, msg: "Invalid email or password." });
 
@@ -153,7 +153,7 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		res.status(401).json({ success: false, msg: "Invalid email or password" });
 	}
 
-	// ALl good - email can be changed and a new password via req.body.newpass
+	// All good - email can be changed and a new password via req.body.newpass
 
 	// Check if password change requested
 	if (req.body.newpass) {
@@ -174,7 +174,12 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 		user.hash = saltHash.hash;
 	}
 	else {
-		// Only email and name can be updated
+		// Only email and name can be updated - validate if changed
+		if (user.email !== req.body.email || user.name !== req.body.name) {
+			const { error } = validate(request);
+			if (error)
+				return res.status(400).json({ success: false, msg: error.details[0].message });
+		}
 	}
 
 	try {

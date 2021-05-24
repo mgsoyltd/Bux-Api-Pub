@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const config = require("config");
 const jsonwebtoken = require('jsonwebtoken');
 const authutils = require("../src/authutils");
@@ -26,6 +25,7 @@ module.exports = function (req, res, next) {
 	const tokenParts = req.headers.authorization.split(' ');
 	// console.log(tokenParts);
 
+	// Expected token?
 	if (tokenParts[0] === 'Bearer' && tokenParts[1].match(/\S+\.\S+\.\S+/) !== null) {
 		try {
 			// RS256 (RSASHA256) algorithm option with public key
