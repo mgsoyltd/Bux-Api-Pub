@@ -10,6 +10,91 @@ const { Readings, validate } = require("../models/readings");
 const Mongoose = require("mongoose");
 
 /**
+ * Get all readings for a book
+ * @param {:id} bookId
+ * 	query: { '$expand': '*' } - Optional expand query to include user dimension
+ */
+router.get("/forbook/:id", [validateKey, auth], async (req, res) => {
+
+	if (req.query.hasOwnProperty("$expand")) {
+		const coll = req.query["$expand"].split(',');
+		if (coll.includes('*')) {
+			const booksId = new Mongoose.Types.ObjectId(req.params.id);
+			const expandAll =
+				[
+					{
+						$match: {
+							books_id: booksId
+						}
+					},
+					{
+						"$sort": {
+							"updatedAt": -1
+						}
+					},
+					{
+						"$lookup": {
+							"from": "books",
+							"localField": "books_id",
+							"foreignField": "_id",
+							"as": "books_data"
+						}
+					},
+					{
+						"$unwind": {
+							"path": "$books_data",
+							"preserveNullAndEmptyArrays": true
+						}
+					},
+					{
+						"$lookup": {
+							"from": "users",
+							"localField": "users_id",
+							"foreignField": "_id",
+							"as": "users_data"
+						}
+					},
+					{
+						"$unwind": {
+							"path": "$users_data",
+							"preserveNullAndEmptyArrays": true
+						}
+					}
+				];
+			const readings = await Readings.aggregate(expandAll);
+			res.send(readings);
+		}
+		else {
+			return res.status(400).send("Bad Request");
+		}
+	}
+	else if (Object.keys(req.query).length !== 0) {
+		return res.status(400).send("Bad Request");
+	}
+	else {
+		// Get all for given book
+		const booksId = new Mongoose.Types.ObjectId(req.params.id);
+		const filter =
+			[
+				{
+					$match: {
+						books_id: booksId
+					}
+				},
+				{
+					"$sort": {
+						"updatedAt": -1
+					}
+				}
+			];
+		const readings = await Readings.aggregate(filter);
+		res.send(readings);
+	}
+
+});
+
+
+/**
  * Get readings
  * 	query: { '$expand': '*' } - Optional expand query to include user dimension
  */
@@ -121,7 +206,7 @@ router.post("/", [validateKey, auth], async (req, res) => {
 			"rating",
 			"comments"
 		]));
-	console.log("<<POST READING>>", readings);
+	// console.log("<<POST READING>>", readings);
 	try {
 		// Save to DB
 		// console.log("<<POST READING>>", readings);
