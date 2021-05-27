@@ -25,7 +25,8 @@ In development run mongod.
 
 ### Generate public/private keypair
 
-Next, you will need to generate a public/private keypair. The `.gitignore` automatically ignores the private key.
+Next, you will need to generate a public/private keypair into config folder.
+The `.gitignore` automatically ignores the private key.
 
 ```
 node generateKeypair.js

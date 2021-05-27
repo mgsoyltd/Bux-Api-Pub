@@ -6,4 +6,4 @@ data/
 stuff/
 public/
 seed.js
-id_rsa_priv.pem
+config/id_rsa_priv.pem
