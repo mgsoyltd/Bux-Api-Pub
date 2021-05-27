@@ -72,6 +72,7 @@ You should see the list of genres. That confirms that you have set up everything
 
 In production the following environment variables must be set:
 
+    bux_jwtPrivateKey   <yourSecureKey>
     bux_db              <database connection string>
 
 Optional environment variables:

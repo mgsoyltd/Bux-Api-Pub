@@ -2,12 +2,18 @@ const crypto = require('crypto');
 const jsonwebtoken = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
+const config = require("config");
 
 const rootDir = path.resolve("./");
-const pathToKey = path.join(rootDir, 'config', 'id_rsa_priv.pem');
 const pathToPubKey = path.join(rootDir, 'config', 'id_rsa_pub.pem');
-const PRIV_KEY = fs.readFileSync(pathToKey, 'utf8');
 const PUB_KEY = fs.readFileSync(pathToPubKey, 'utf8');
+let PRIV_KEY = "";
+if (process.env.NODE_ENV === "production") {
+  PRIV_KEY = config.get("jwtPrivateKey");
+} else {
+  const pathToKey = path.join(rootDir, 'config', 'id_rsa_priv.pem');
+  PRIV_KEY = fs.readFileSync(pathToKey, 'utf8');
+}
 
 /**
  * -------------- HELPER FUNCTIONS ----------------
