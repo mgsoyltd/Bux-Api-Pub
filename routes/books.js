@@ -98,7 +98,7 @@ router.post("/", [validateKey, auth], async (req, res) => {
 	let book = await Books.findOne({ ISBN: req.body.ISBN });
 	if (book) return res.status(400).send("Book already registered.");
 
-	book = new Books(_.pick(req.body, ["title", "author", "ISBN", "description", "pages", "imageURL", "image"]));
+	book = new Books(_.pick(req.body, ["title", "author", "ISBN", "description", "pages", "imageURL", "public_id", "image"]));
 	try {
 		// Save to DB
 		// console.log("<<POST BOOK>>", book);
@@ -146,7 +146,8 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 			author: req.body.author,
 			description: req.body.description || "",
 			pages: req.body.pages,
-			imageURL: req.body.imageURL || ""
+			imageURL: req.body.imageURL || "",
+			public_id: req.body.public_id || "",
 		},
 		{
 			new: true,

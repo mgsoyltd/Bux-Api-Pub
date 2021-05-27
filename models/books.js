@@ -22,6 +22,7 @@ const bookSchema = new mongoose.Schema({
 	description: String,
 	pages: Number,
 	imageURL: String,
+	public_id: String,
 	image: {
 		data: Buffer,
 		contentType: String
@@ -39,6 +40,7 @@ function validateBook(book) {
 			description: Joi.string().empty(''),
 			pages: Joi.number(),
 			imageURL: Joi.string().empty(''),	// !! Allow empty string !!
+			public_id: Joi.string().empty(''),	// !! Allow empty string !!
 			image: Joi.allow(null),
 			book: Joi.allow(null),
 		});
