@@ -8,17 +8,34 @@ const validateObjectId = require("../middleware/validateObjectId");
 const { validateKey } = require("../middleware/apikeys");
 const { Readings, validate } = require("../models/readings");
 const Mongoose = require("mongoose");
+const { matches, isEmpty } = require("lodash");
 
 /**
  * Get all readings for a book
  * @param {:id} bookId
- * 	query: { '$expand': '*' } - Optional expand query to include user dimension
+ * 	query: { '$expand': '*'|<list of fields> } - Optional expand query to include user dimension
  */
 router.get("/forbook/:id", [validateKey, auth], async (req, res) => {
 
 	if (req.query.hasOwnProperty("$expand")) {
+		// Build the query 
 		const coll = req.query["$expand"].split(',');
-		if (coll.includes('*')) {
+		let queryObj = {};
+		coll.forEach(element => {
+			if (element) {
+				queryObj[element] = true;
+			}
+		});
+		// Limit fields based on the query
+		let projectObj = {
+			"$project": queryObj
+		}
+		if (coll.includes('*') || isEmpty(queryObj)) {
+			projectObj = {};
+		}
+		// console.log(projectObj, coll, coll.length);
+
+		if (coll.length > 0) {
 			const booksId = new Mongoose.Types.ObjectId(req.params.id);
 			const expandAll =
 				[
@@ -59,8 +76,14 @@ router.get("/forbook/:id", [validateKey, auth], async (req, res) => {
 							"path": "$users_data",
 							"preserveNullAndEmptyArrays": true
 						}
-					}
+					},
 				];
+
+			if (!isEmpty(projectObj)) {
+				expandAll.push(projectObj);
+			}
+			// console.log(expandAll);
+
 			const readings = await Readings.aggregate(expandAll);
 			res.send(readings);
 		}

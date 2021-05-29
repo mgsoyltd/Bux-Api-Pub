@@ -1,0 +1,102 @@
+{
+	"users_id": {
+		"path": "users_id",
+		"instance": "ObjectID",
+		"validators": [
+			{ "message": "Path `{PATH}` is required.", "type": "required" }
+		],
+		"getters": [],
+		"setters": [],
+		"options": { "required": true },
+		"_index": null,
+		"isRequired": true,
+		"originalRequiredValue": true
+	},
+	"books_id": {
+		"path": "books_id",
+		"instance": "ObjectID",
+		"validators": [
+			{ "message": "Path `{PATH}` is required.", "type": "required" }
+		],
+		"getters": [],
+		"setters": [],
+		"options": { "required": true },
+		"_index": null,
+		"isRequired": true,
+		"originalRequiredValue": true
+	},
+	"current_page": {
+		"path": "current_page",
+		"instance": "Number",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"time_spent": {
+		"path": "time_spent",
+		"instance": "Number",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"rating": {
+		"path": "rating",
+		"instance": "Number",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"comments": {
+		"enumValues": [],
+		"regExp": null,
+		"path": "comments",
+		"instance": "String",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"_id": {
+		"path": "_id",
+		"instance": "ObjectID",
+		"validators": [],
+		"getters": [],
+		"setters": [null],
+		"options": { "auto": true, "type": "ObjectId" },
+		"_index": null
+	},
+	"updatedAt": {
+		"path": "updatedAt",
+		"instance": "Date",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"createdAt": {
+		"path": "createdAt",
+		"instance": "Date",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	},
+	"__v": {
+		"path": "__v",
+		"instance": "Number",
+		"validators": [],
+		"getters": [],
+		"setters": [],
+		"options": {},
+		"_index": null
+	}
+}
