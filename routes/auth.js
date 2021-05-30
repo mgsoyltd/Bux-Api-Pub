@@ -13,6 +13,7 @@ const authutils = require("../src/authutils");
  * @param {*} req.body.password - user's password (plain text)
  * @returns res.status 200 - authorized with res.jwt
  * 					res.status 401 - unauthorized
+ * 					res.status 403 - too many invalid attempts
  */
 router.post('/', validateKey, async (req, res) => {
 

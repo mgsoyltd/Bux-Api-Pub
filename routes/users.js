@@ -53,7 +53,7 @@ router.post("/", [validateKey], async (req, res) => {
 
 	const { error } = validate(req.body);
 	if (error)
-		return res.status(400).json({ success: false, msg: error.details[0].message });
+		return res.status(400).send(error.details[0].message);
 
 	// Look up user by email
 	let user = await User.findOne({ email: req.body.email });
