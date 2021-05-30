@@ -47,6 +47,7 @@ router.post('/', validateKey, async (req, res) => {
 				token: tokenObject.token,
 				expiresIn: tokenObject.expires,
 				name: user.name,
+				prevLogonTime: user.prevLogonTime,
 				isAdmin: user.isAdmin
 			});
 	} else {
