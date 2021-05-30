@@ -24,9 +24,22 @@ router.post('/', validateKey, async (req, res) => {
 	if (!user)
 		return res.status(401).json({ success: false, msg: "Invalid email or password." });
 
+	if (user.invalidLogons && user.invalidLogons >= 10) {
+		return res.status(403).json({ success: false, msg: "Too many invalid authentication attempts." });
+	}
+
 	const isValid = authutils.validPassword(req.body.password, user.hash, user.salt);
 
 	if (isValid) {
+		// Record lastLogonTime
+		const time = new Date().toISOString();	// YYYY-MM-DDTHH:mm:ss.sssZ
+		user.prevLogonTime = user.lastLogonTime;
+		user.lastLogonTime = time;
+		user.invalidLogons = 0;
+		// save to DB
+		await user.save();
+
+		// Generate and return JWT 
 		const tokenObject = authutils.issueJWT(user);
 		res.status(200).json(
 			{
@@ -37,6 +50,15 @@ router.post('/', validateKey, async (req, res) => {
 				isAdmin: user.isAdmin
 			});
 	} else {
+		// Record invalidLogons counter
+		let count = user.invalidLogons;
+		if (count === undefined) {
+			count = 0;
+		}
+		user.invalidLogons = ++count;
+		// save to DB
+		await user.save();
+
 		res.status(401).json({ success: false, msg: "Invalid email or password" });
 	}
 

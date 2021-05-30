@@ -32,7 +32,10 @@ const userSchema = new mongoose.Schema({
 			date: String,
 			count: Number,
 		}
-	]
+	],
+	prevLogonTime: String,
+	lastLogonTime: String,
+	invalidLogons: Number
 });
 
 const User = mongoose.model("users", userSchema);
