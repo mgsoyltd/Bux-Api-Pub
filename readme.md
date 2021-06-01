@@ -79,3 +79,8 @@ Optional environment variables:
 
     API_MAX             <maxinum API calls per day>
                         Only when config.requiresApiKey=true> Default is 100.
+                        
+### Copyright
+
+© Copyright Morning Glow Solutions Oy Ltd
+All Rights Reserved.
