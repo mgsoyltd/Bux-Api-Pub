@@ -82,5 +82,4 @@ Optional environment variables:
                         
 ### Copyright
 
-© Copyright Morning Glow Solutions Oy Ltd
-All Rights Reserved.
+© Copyright Morning Glow Solutions Oy Ltd - All Rights Reserved.
