@@ -1,29 +1,57 @@
 const request = require('supertest');
 const { Books } = require('../../models/books');
 const { User } = require('../../models/user');
+const { createUserObject } = require('../../src/userutil');
 const mongoose = require('mongoose');
 
-let server;
+const origin = "127.0.0.1:3000";
 
-beforeAll(() => {
-})
+let server;
+var token;
+var user;
+
+const createTestUser = async (isAdmin = true) => {
+  user = {
+    email: "test@mail.com",
+    password: "123456789aB.",
+    name: "testuser",
+    isAdmin: isAdmin,
+    host: "http://localhost:3000",
+    api_key: "",
+    usage: [
+      {
+        data: "2021-10-12",
+        count: 1,
+      }
+    ]
+  };
+  const usr = await createUserObject(user, origin);
+  token = usr.token;
+  user = usr.user;
+  return usr;
+}
+
+beforeAll(async () => {
+  server = require('../../index');
+  await createTestUser();
+  // console.log("TOKEN:", token);
+});
 
 afterAll(async () => {
+  await Books.deleteMany({});
+  await User.deleteMany({});
   await server.close();
   await mongoose.connection.close();
-})
+});
 
 describe('/api/books', () => {
 
-  beforeEach(async () => {
-    server = require('../../index');
-    token = new User().generateAuthToken();
-  })
+  beforeEach(() => {
+  });
 
   afterEach(async () => {
     await Books.deleteMany({});
-    await server.close();
-  })
+  });
 
   describe('GET /', () => {
 
@@ -37,7 +65,7 @@ describe('/api/books', () => {
 
       const res = await request(server)
         .get('/api/books')
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send();
 
       expect(res.status).toBe(200);
@@ -55,7 +83,7 @@ describe('/api/books', () => {
 
       const res = await request(server)
         .get('/api/books/' + book._id)
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send();
 
       expect(res.status).toBe(200);
@@ -65,7 +93,7 @@ describe('/api/books', () => {
     it('should return 404 if invalid id is passed', async () => {
       const res = await request(server)
         .get('/api/books/1')
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send();
 
       expect(res.status).toBe(404);
@@ -75,7 +103,7 @@ describe('/api/books', () => {
       const id = mongoose.Types.ObjectId();
       const res = await request(server)
         .get('/api/books/' + id)
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send();
 
       expect(res.status).toBe(404);
@@ -87,13 +115,12 @@ describe('/api/books', () => {
     // Define the happy path, and then in each test, we change 
     // one parameter that clearly aligns with the title of the 
     // test. 
-    let token;
     let title;
 
-    beforeEach(() => {
-      token = new User().generateAuthToken();
+    beforeEach(async () => {
       title = 'book1';
     })
+
     afterEach(async () => {
       await Books.deleteMany({});
     });
@@ -101,16 +128,17 @@ describe('/api/books', () => {
     const exec = async () => {
       return await request(server)
         .post('/api/books')
-        .set('x-auth-token', token)
-        .send({ title: title, author: 'author1', ISBN: '12345678904', image: {} });
+        .set('authorization', token)
+        .send({ title: title, author: 'author1', ISBN: '12345678904', description: "", pages: 100, imageURL: "", public_id: "", image: {} });
     }
 
-    it('should return 401 if client is not logged in', async () => {
+    it('should return 400 if client is not logged in', async () => {
+      const save_token = token;
       token = '';
-
       const res = await exec();
+      token = save_token;
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     it('should return 400 if book title is empty', async () => {
@@ -130,7 +158,8 @@ describe('/api/books', () => {
     });
 
     it('should save the book if it is valid', async () => {
-      await exec();
+      const res = await exec();
+      expect(res.status).toBe(200);
 
       const book = await Books.find({ title: 'book1' });
 
@@ -147,7 +176,6 @@ describe('/api/books', () => {
   });
 
   describe('PUT /:id', () => {
-    let token;
     let newName;
     let book;
     let id;
@@ -158,24 +186,28 @@ describe('/api/books', () => {
       book = new Books({ title: 'book1', author: 'author1', ISBN: '1234567896', image: {} });
       await book.save();
 
-      token = new User().generateAuthToken();
       id = book._id;
       newName = 'updatedName';
     })
 
+    afterEach(async () => {
+      await Books.deleteMany({});
+    });
+
     const exec = async () => {
       return await request(server)
         .put('/api/books/' + id)
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send({ title: newName, author: 'author1', ISBN: '1234567895', image: {} });
     }
 
-    it('should return 401 if client is not logged in', async () => {
+    it('should return 400 if client is not logged in', async () => {
+      const save_token = token;
       token = '';
-
       const res = await exec();
+      token = save_token;
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     it('should return 400 if book title is empty', async () => {
@@ -207,7 +239,8 @@ describe('/api/books', () => {
 
       const res = await exec();
 
-      expect(res.status).toBe(404);
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({});   // Should find nothing
     });
 
     it('should update the book if input is valid', async () => {
@@ -227,14 +260,13 @@ describe('/api/books', () => {
   });
 
   describe('DELETE /:id', () => {
-    let token;
     let book;
     let id;
 
     const exec = async () => {
       return await request(server)
         .delete('/api/books/' + id)
-        .set('x-auth-token', token)
+        .set('authorization', token)
         .send();
     }
 
@@ -245,19 +277,24 @@ describe('/api/books', () => {
       await book.save();
 
       id = book._id;
-      token = new User({ isAdmin: true }).generateAuthToken();
-    })
+    });
 
-    it('should return 401 if client is not logged in', async () => {
+    afterEach(async () => {
+      await Books.deleteMany({});
+      await User.deleteMany({});
+    });
+
+    it('should return 400 if client is not logged in', async () => {
+      const save_token = token;
       token = '';
-
       const res = await exec();
+      token = save_token;
 
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(400);
     });
 
     it('should return 403 if the user is not an admin', async () => {
-      token = new User({ isAdmin: false }).generateAuthToken();
+      await createTestUser(false);  // isAdmin=false
 
       const res = await exec();
 
@@ -265,6 +302,7 @@ describe('/api/books', () => {
     });
 
     it('should return 404 if id is invalid', async () => {
+      await createTestUser();
       id = 1;
 
       const res = await exec();
@@ -273,6 +311,7 @@ describe('/api/books', () => {
     });
 
     it('should return 404 if no book with the given id was found', async () => {
+      await createTestUser();
       id = mongoose.Types.ObjectId();
 
       const res = await exec();
@@ -281,6 +320,7 @@ describe('/api/books', () => {
     });
 
     it('should delete the book if input is valid', async () => {
+      await createTestUser();
       await exec();
 
       const bookInDb = await Books.findById(id);
@@ -289,10 +329,12 @@ describe('/api/books', () => {
     });
 
     it('should return the removed book', async () => {
+      await createTestUser();
       const res = await exec();
 
       expect(res.body).toHaveProperty('_id', book._id.toHexString());
       expect(res.body).toHaveProperty('title', book.title);
     });
   });
+
 });

@@ -1,4 +1,5 @@
 {
 	"jwtPrivateKey": "1234",
-	"db": "mongodb://localhost/bux_tests"
+	"db": "mongodb://localhost/bux_tests",
+	"requiresApiKey": false
 }

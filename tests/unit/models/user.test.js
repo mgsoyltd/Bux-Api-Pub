@@ -20,7 +20,7 @@ describe('user.generateAuthToken', () => {
       email: "user@domain.com",
       isAdmin: true
     };
-    const user = new User(payload);
+    let user = new User(payload);
     user = getApiKey(user, req);
 
     const saltHash = authutils.genPassword(req.body.password);

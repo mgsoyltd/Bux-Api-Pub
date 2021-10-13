@@ -39,11 +39,12 @@ const validateKey = async (req, res, next) => {
 
   const account = await User.findOne(
     {
-      host: host,
+      // host: host,
       api_key: api_key
     });
 
   // console.log("<<<ACCOUNT>>>", account);
+
   if (account) {
     // good match
     // check the usage

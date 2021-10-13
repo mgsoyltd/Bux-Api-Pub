@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "node index.js",
 		"dev": "nodemon index.js",
-		"test": "jest --watchAll --maxWorkers=1"
+		"test": "jest --watchAll --maxWorkers=1 --testPathIgnorePatterns='apikeys.test'",
+		"test-apikeys": "jest --watchAll --maxWorkers=1 apikeys.test"
 	},
 	"author": "",
 	"license": "ISC",

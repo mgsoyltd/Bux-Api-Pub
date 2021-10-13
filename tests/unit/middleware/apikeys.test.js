@@ -1,12 +1,25 @@
 const request = require('supertest');
 const { User } = require('../../../models/user');
+const { createUserObject } = require('../../../src/userutil');
 const mongoose = require('mongoose');
 const { getApiKey } = require('../../../middleware/apikeys');
-const _ = require("lodash");
+const config = require("config");
 
+
+const origin = "127.0.0.1:3000";
 let server;
+let token;
+let user;
 
-beforeAll(() => {
+beforeAll(async () => {
+
+    // NOTE! config/test.json should have "requiresApiKey": true 
+    // for these tests to work
+    if (!config.get("requiresApiKey")) {
+        console.log('For this test unit config/test.json should have "requiresApiKey": true');
+    }
+
+    server = require('../../../index');
 })
 
 afterAll(async () => {
@@ -17,237 +30,150 @@ afterAll(async () => {
 describe('/api/users', () => {
 
     beforeEach(() => {
-        server = require('../../../index');
-    })
+    });
+
     afterEach(async () => {
         await User.deleteMany({});
-        await server.close();
     });
 
     describe('GET /', () => {
 
-        it('should return all users', async () => {
-
-            var user = {
-                _id: mongoose.Types.ObjectId().toHexString(),
+        beforeEach(async () => {
+            user = {
+                // _id: mongoose.Types.ObjectId().toHexString(),
                 email: "test@mail.com",
-                password: "adskflsdjflkdsjf",
+                password: "123456789aB.",
                 name: "testuser",
                 isAdmin: true,
                 host: "http://localhost:3000",
                 api_key: "",
                 usage: [
                     {
-                        data: "2021-02-26",
+                        data: "2021-10-12",
                         count: 1,
                     }
                 ]
             };
+            const usr = await createUserObject(user, origin);
+            token = usr.token;
+            user = usr.user;
+        });
 
-            const origin = "http://localhost:3000";
-            user = new User(user);
-            const token = user.generateAuthToken();
-            user = getApiKey(user, {
-                header: jest.fn().mockReturnValue(origin)
-            });
-            const api_key = user.api_key;
-            user.usage[0].count = 1;
+        afterEach(async () => {
+            await User.deleteMany({});
+        });
 
-            await User.collection.insertOne(user);
+        it('should return all users', async () => {
 
             const res = await request(server)
                 .get('/api/users')
-                .set('x-auth-token', token)
-                .set('x-api-key', api_key)
+                .set('authorization', token)
+                .set('x-api-key', user.api_key)
                 .set('origin', origin)
                 .send();
+
+            // console.log(user);
 
             expect(res.status).toBe(200);
             expect(res.body.length).toBe(1);
             expect(res.body.some(g => g.name === 'testuser')).toBeTruthy();
         });
-    });
 
-    it('should return invalid API KEY 403 due to different origin', async () => {
+        // it('should return invalid API KEY 403 due to different origin', async () => {
 
-        var user = {
-            _id: mongoose.Types.ObjectId().toHexString(),
-            email: "test@mail.com",
-            password: "adskflsdjflkdsjf",
-            name: "testuser",
-            isAdmin: true,
-            host: "http://localhost:3000",
-            api_key: "",
-            usage: [
-                {
-                    data: "2021-02-26",
-                    count: 1,
-                }
-            ]
-        };
+        //     const res = await request(server)
+        //         .get('/api/users')
+        //         .set('authorization', token)
+        //         .set('x-api-key', user.api_key)
+        //         .set('origin', "127.0.0.1:3001")
+        //         .send();
 
-        const origin = "http://localhost:3000";
-        user = new User(user);
-        const token = user.generateAuthToken();
-        user = getApiKey(user, {
-            header: jest.fn().mockReturnValue(origin)
+        //     expect(res.status).toBe(403);
+        // });
+
+        it('should return invalid API KEY 403', async () => {
+
+            const res = await request(server)
+                .get('/api/users')
+                .set('authorization', token)
+                .set('x-api-key', "")
+                .set('origin', origin)
+                .send();
+
+            expect(res.status).toBe(403);
         });
-        const api_key = user.api_key;
-        user.usage[0].count = 1;
 
-        await User.collection.insertOne(user);
+        it('should increase API usage counter', async () => {
 
-        const res = await request(server)
-            .get('/api/users')
-            .set('x-auth-token', token)
-            .set('x-api-key', api_key)
-            .set('origin', "http://localhost:3001")
-            .send();
+            var res = await request(server)
+                .get('/api/users')
+                .set('authorization', token)
+                .set('x-api-key', user.api_key)
+                .set('origin', origin)
+                .send();
 
-        expect(res.status).toBe(403);
-    });
+            expect(res.status).toBe(200);
 
-    it('should return invalid API KEY 403', async () => {
-
-        var user = {
-            _id: mongoose.Types.ObjectId().toHexString(),
-            email: "test@mail.com",
-            password: "adskflsdjflkdsjf",
-            name: "testuser",
-            isAdmin: true,
-            host: "http://localhost:3000",
-            api_key: "",
-            usage: [
+            var account = await User.findOne(
                 {
-                    data: "2021-02-26",
-                    count: 1,
-                }
-            ]
-        };
+                    // host: origin,
+                    api_key: user.api_key
+                });
 
-        const origin = "http://localhost:3000";
-        user = new User(user);
-        const token = user.generateAuthToken();
-        user = getApiKey(user, {
-            header: jest.fn().mockReturnValue(origin)
-        });
-        const api_key = user.api_key;
-        user.usage[0].count = 1;
+            expect(account.usage[0].count).toBe(1);
 
-        await User.collection.insertOne(user);
+            res = {};
+            res = await request(server)
+                .get('/api/users')
+                .set('authorization', token)
+                .set('x-api-key', user.api_key)
+                .set('origin', origin)
+                .send();
 
-        const res = await request(server)
-            .get('/api/users')
-            .set('x-auth-token', token)
-            .set('x-api-key', "")
-            .set('origin', origin)
-            .send();
+            expect(res.status).toBe(200);
 
-        expect(res.status).toBe(403);
-    });
-
-    it('should increase API usage counter', async () => {
-
-        var user = {
-            _id: mongoose.Types.ObjectId().toHexString(),
-            email: "test@mail.com",
-            password: "adskflsdjflkdsjf",
-            name: "testuser",
-            isAdmin: true,
-            host: "http://localhost:3000",
-            api_key: "",
-            usage: [
+            account = await User.findOne(
                 {
-                    data: "2021-02-26",
-                    count: 1,
-                }
-            ]
-        };
+                    host: origin,
+                    api_key: user.api_key
+                });
+            expect(account.usage[0].count).toBe(2);
 
-        const origin = "http://localhost:3000";
-        user = new User(user);
-        const token = user.generateAuthToken();
-        user = getApiKey(user, {
-            header: jest.fn().mockReturnValue(origin)
         });
-        const api_key = user.api_key;
-        user.usage[0].count = 1;
 
-        await User.collection.insertOne(user);
+        it('should return Max API calls exceeded', async () => {
 
-        var res = await request(server)
-            .get('/api/users')
-            .set('x-auth-token', token)
-            .set('x-api-key', api_key)
-            .set('origin', origin)
-            .send();
+            await User.deleteMany({});
+            let user = {
+                // _id: mongoose.Types.ObjectId().toHexString(),
+                email: "test@mail.com",
+                password: "123456789aB.",
+                name: "testuser",
+                isAdmin: true,
+                host: "http://localhost:3000",
+                api_key: "",
+                usage: [
+                    {
+                        data: "2021-10-12",
+                        count: 0,
+                    }
+                ]
+            };
 
-        expect(res.status).toBe(200);
+            const origin = "http://localhost:3000";
+            const usr = await createUserObject(user, origin, 257);
+            token = usr.token;
+            user = usr.user;
+            const api_key = user.api_key;
 
-        var account = await User.findOne(
-            {
-                host: origin,
-                api_key: api_key
-            });
+            const res = await request(server)
+                .get('/api/users')
+                .set('authorization', token)
+                .set('x-api-key', api_key)
+                .set('origin', origin)
+                .send();
 
-        expect(account.usage[0].count).toBe(2);
-
-        res = {};
-        res = await request(server)
-            .get('/api/users')
-            .set('x-auth-token', token)
-            .set('x-api-key', api_key)
-            .set('origin', origin)
-            .send();
-
-        expect(res.status).toBe(200);
-
-        account = await User.findOne(
-            {
-                host: origin,
-                api_key: api_key
-            });
-        expect(account.usage[0].count).toBe(3);
-
-    });
-
-    it('should return Max API calls exceeded', async () => {
-
-        var user = {
-            _id: mongoose.Types.ObjectId().toHexString(),
-            email: "test@mail.com",
-            password: "adskflsdjflkdsjf",
-            name: "testuser",
-            isAdmin: true,
-            host: "http://localhost:3000",
-            api_key: "",
-            usage: [
-                {
-                    data: "2021-02-26",
-                    count: 1,
-                }
-            ]
-        };
-
-        const origin = "http://localhost:3000";
-        user = new User(user);
-        const token = user.generateAuthToken();
-        user = getApiKey(user, {
-            header: jest.fn().mockReturnValue(origin)
+            expect(res.status).toBe(429);
         });
-        const api_key = user.api_key;
-        user.usage[0].count = 257;
-
-        await User.collection.insertOne(user);
-
-        const res = await request(server)
-            .get('/api/users')
-            .set('x-auth-token', token)
-            .set('x-api-key', api_key)
-            .set('origin', origin)
-            .send();
-
-        expect(res.status).toBe(429);
     });
-
 });

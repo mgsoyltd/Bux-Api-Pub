@@ -9,7 +9,8 @@ const { User } = require("../models/user");
  * @param {*} req.headers.authorization - JWT Bearer token
  * @param {*} res 
  * @param {*} next 
- * @returns res.status 200 - authorized with user object in req.user
+ * @returns req.user			 - user object if found by token
+ *          res.status 200 - authorized with user object in req.user
  * 					res.status 400 - bad reqeust
  * 					res.status 401 - unauthorized
  */

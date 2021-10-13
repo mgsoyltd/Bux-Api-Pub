@@ -1,0 +1,71 @@
+const { User } = require('../../../models/user');
+const { createUserObject } = require('../../../src/userutil');
+const auth = require('../../../middleware/auth');
+const mongoose = require('mongoose');
+// const { isError } = require('joi');
+
+let server;
+var req;
+const origin = "127.0.0.1:3000";
+
+beforeAll(() => {
+  server = require('../../../index');
+})
+
+afterAll(async () => {
+  await server.close();
+  await mongoose.connection.close();
+})
+
+describe('auth middleware', () => {
+
+  beforeEach(() => {
+  });
+
+  afterEach(async () => {
+    await User.deleteMany({});
+  });
+
+  it('should populate req.user with the payload of a valid JWT', async () => {
+
+    let user = {
+      email: "test@mail.com",
+      password: "123456789aB.",
+      name: "testuser",
+      isAdmin: true,
+      host: "http://localhost:3000",
+      api_key: "",
+      usage: [
+        {
+          data: "2021-10-12",
+          count: 1,
+        }
+      ]
+    };
+
+    const usr = await createUserObject(user, origin);
+    token = usr.token;
+    user = usr.user;
+
+    req = {
+      headers: {
+        authorization: token,
+        'x-api-key': user.api_key,
+        origin: origin
+      }
+    };
+
+    console.log("REQ-before", req);
+
+    var res = {};
+    var next = jest.fn();
+
+    auth(req, res, next);
+
+    console.log("REQ-after", req);
+
+    expect(req.user).toMatchObject(user);
+  });
+
+});
+

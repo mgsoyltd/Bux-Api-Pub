@@ -134,7 +134,7 @@ router.get("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 	const { error } = validate(req.body);
 	if (error) {
-		console.log("VALIDATION ERROR", error);
+		// console.log("VALIDATION ERROR", error);
 		return res.status(400).send(error.details[0].message);
 	}
 
@@ -150,7 +150,7 @@ router.put("/:id", [validateKey, auth, validateObjectId], async (req, res) => {
 			public_id: req.body.public_id || "",
 		},
 		{
-			new: true,
+			new: true,				// return the modified document 
 		}
 	);
 	res.send(book);

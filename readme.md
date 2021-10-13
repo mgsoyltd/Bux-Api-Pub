@@ -1,6 +1,6 @@
 ## Introduction
 
-This project is the backend REST API of Bux - a books reading goal app.
+This project is the backend REST API of Bux - a books reading goals app.
 
 This is the implementation of Bux API using:
 
@@ -50,6 +50,13 @@ You're almost done! Run the tests to make sure everything is working:
 
 All tests should pass.
 
+If you're going to use API Key solution, then set config to have "requiresApiKey": true.
+To test API Key solution, run a separate test file below.
+
+```
+    npm run test-apikeys
+```
+
 ### Start the Server
 
 ```
@@ -60,13 +67,14 @@ All tests should pass.
     npm start       Production
 ```
 
-This will launch the Node server on port 3900. If that port is busy, you can set a different point in config/default.json.
+This will launch the Node server on port 3000. If that port is busy, you can set a different point in config/default.json.
 
 Open up your browser and head over to:
 
-http://localhost:3900/api/books?$expand=\*
+http://localhost:3000
 
-You should see the list of genres. That confirms that you have set up everything successfully.
+You should see the Bux API welcome message.
+That confirms that you have set up everything successfully.
 
 ### Environment Variables
 
