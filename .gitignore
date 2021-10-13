@@ -7,3 +7,4 @@ stuff/
 public/
 seed.js
 config/id_rsa_priv.pem
+package-lock.json
