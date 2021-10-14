@@ -1,6 +1,8 @@
 ## Introduction
 
-This project is the backend REST API of Bux - a books reading goals app.
+This project is the backend REST API of the Bux App - a books reading goals app.
+
+Bux App: https://github.com/mgsoyltd/Bux-App-Pub.git
 
 This is the implementation of Bux API using:
 
