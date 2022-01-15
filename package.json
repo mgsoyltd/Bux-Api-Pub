@@ -1,8 +1,11 @@
 {
 	"name": "buxapi",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "",
 	"main": "index.js",
+	"engines": {
+		"node": "16.x"
+	},
 	"scripts": {
 		"start": "node index.js",
 		"dev": "nodemon index.js",
@@ -12,6 +15,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"colors": "^1.4.0",
 		"config": "^3.3.3",
 		"cors": "^2.8.5",
 		"express": "^4.17.1",
