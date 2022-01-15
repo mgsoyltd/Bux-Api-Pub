@@ -48,8 +48,7 @@ router.get("/", [validateKey, auth, admin], async (req, res) => {
  * @param req.body.password		Password (plain text)
  * @param req.body.name				User name (optional)
  */
-// router.post("/", [validateKey, auth, admin], async (req, res) => {
-router.post("/", [validateKey], async (req, res) => {
+router.post("/", [validateKey, auth, admin], async (req, res) => {
 
 	const { error } = validate(req.body);
 	if (error)
