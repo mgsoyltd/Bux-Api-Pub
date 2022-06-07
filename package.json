@@ -15,7 +15,7 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"colors": "^1.4.0",
+		"colors": ">=1.4.1",
 		"config": "^3.3.3",
 		"cors": "^2.8.5",
 		"express": "^4.17.1",
